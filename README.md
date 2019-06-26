@@ -20,8 +20,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/codemaveric/libraclient/go-client/pkg/goclient"
-	"github.com/codemaveric/libraclient/go-client/pkg/librawallet"
+	"github.com/codemaveric/libra-go/pkg/goclient"
+	"github.com/codemaveric/libra-go/pkg/librawallet"
 )
 
 func main() {
