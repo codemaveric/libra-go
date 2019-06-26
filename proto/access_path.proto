@@ -1,0 +1,13 @@
+// Copyright (c) The Libra Core Contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+option go_package = "github.com/codemaveric/libraclient/gowrapper";
+
+package types;
+
+message AccessPath {
+  bytes address = 1;
+  bytes path = 2;
+}
