@@ -1,7 +1,7 @@
 # Libra Golang Client
 Libra Golang Client is library to interact with Libra Blockchain
 
-> Note: The project is still under some major development! The Package is not stable and will keep changing!
+> Note: The project is still under major development! The Package is not stable and will keep changing!
 
 ## Installation
 Run to install the package
@@ -33,7 +33,7 @@ func main() {
 	}
 	log.Print(address.ToString())
   // Instantiate LibraClient with TestNet Configuration
-	libraClient := goclient.NewLibraClient(goclient.LibraClientConfig{Network: TestNet})
+	libraClient := goclient.NewLibraClient(goclient.LibraClientConfig{Network: goclient.TestNet})
   
 	// Mint coins on testnet to reciever address, amount is in microlibra
 	libraClient.MintWithFaucetService(address.ToString(), 25000000, true)
