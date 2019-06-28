@@ -136,6 +136,7 @@ func (l *LibraClient) waitForTransaction(address types.AccountAddress, sequenceN
 		}
 		if maxIteration <= 0 {
 			log.Print("wait_for_transaction timeout")
+			break
 		}
 		time.Sleep(time.Millisecond * 100)
 	}

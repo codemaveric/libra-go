@@ -1,7 +1,6 @@
 package common
 
 import (
-	"bytes"
 	"encoding/binary"
 )
 
@@ -27,11 +26,7 @@ func (c *CanonicalSerializer) Read64() uint64 {
 }
 
 func (c *CanonicalSerializer) ReadXBytes(num uint64) []byte {
-	r := bytes.NewReader(c.Data[c.Position:num])
-	var res byteType
-	binary.Read(r, binary.LittleEndian, &res)
+	//Need to work on this
 	c.Position += num
-	return res
+	return c.Data[c.Position:num]
 }
-
-type byteType []byte

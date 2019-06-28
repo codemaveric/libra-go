@@ -2,6 +2,7 @@ package librawallet
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"io"
 	"log"
 
@@ -34,6 +35,11 @@ func (e *ExtendedPrivKey) GetAddress() types.AccountAddress {
 	digest := sha3.Sum256(publicKey)
 	accountAddress = digest[:]
 	return accountAddress
+}
+
+// Returns Private Key string representation
+func (e *ExtendedPrivKey) ToString() string {
+	return hex.EncodeToString(e.PrivateKey)
 }
 
 func (e *ExtendedPrivKey) GetPublic() ed25519.PublicKey {

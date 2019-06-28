@@ -1,6 +1,10 @@
 package types
 
-import "encoding/hex"
+import (
+	"encoding/hex"
+
+	"golang.org/x/crypto/sha3"
+)
 
 const (
 	ADDRESS_LENGTH int = 32
@@ -20,7 +24,11 @@ func (a AccountAddress) IsValidBytes() bool {
 	return len(a) == ADDRESS_LENGTH
 }
 
-//TODO: Implement Get Account Address from secret key
-func (a AccountAddress) FromSecret(secretKeyHex string) AccountAddress {
-	return make([]byte, 32)
+// Get Address from secret key in hex
+func GetAddressFromSecret(secretKey string) AccountAddress {
+	keybytes, _ := hex.DecodeString(secretKey)
+	publicKey := make([]byte, ADDRESS_LENGTH)
+	copy(publicKey, keybytes[32:])
+	digest := sha3.Sum256(publicKey)
+	return digest[:]
 }
