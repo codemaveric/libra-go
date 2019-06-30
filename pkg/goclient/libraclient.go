@@ -48,7 +48,9 @@ func (l *LibraClient) GetAccountState(address string) (*AccountState, error) {
 	}
 	account := &AccountState{}
 	payload := res.AccountStateWithProof.Blob.Blob
-	err = account.Deserialize(payload)
+	accountTree := decodeAccountStateBlob(payload)
+	ap := accountResourcePath()
+	err = account.Deserialize(accountTree[ap])
 	return account, err
 }
 

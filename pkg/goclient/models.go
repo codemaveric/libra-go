@@ -1,11 +1,15 @@
 package goclient
 
 import (
+	"encoding/hex"
+
 	"github.com/codemaveric/libra-go/pkg/common"
 )
 
+const AccountStatePath string = "01217da6c6b3e19f1825cfb2676daecce3bf3de03cf26647c78df00b371b25cc97"
+
 type AccountState struct {
-	AuthenticationKey   []byte `json:"authentication_key"`
+	AuthenticationKey   string `json:"authentication_key"`
 	Balance             uint64 `json:"balance"`
 	RecievedEventsCount uint64 `json:"received_events_count"`
 	SentEventsCount     uint64 `json:"sent_events_count"`
@@ -14,7 +18,9 @@ type AccountState struct {
 
 func (a *AccountState) Deserialize(payload []byte) error {
 	canonicalSerializer := common.NewCanonicalSerializer(payload)
-	canonicalSerializer.ReadXBytes(81)
+	authenticationKeyLen := canonicalSerializer.Read32()
+	data := canonicalSerializer.ReadXBytes(uint64(authenticationKeyLen))
+	a.AuthenticationKey = hex.EncodeToString(data)
 	a.Balance = canonicalSerializer.Read64()
 	a.RecievedEventsCount = canonicalSerializer.Read64()
 	a.SentEventsCount = canonicalSerializer.Read64()
