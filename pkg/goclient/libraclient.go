@@ -120,15 +120,15 @@ func (l *LibraClient) MintWithFaucetService(address string, num_coins uint64, is
 	}
 	hdfj := string(payload)
 	sequence, _ := strconv.Atoi(hdfj)
-	accountAddress := types.NewAccountAddress(address)
+	//accountAddress := types.NewAccountAddress(address)
 	if is_blocking {
-		l.waitForTransaction(accountAddress, uint64(sequence))
+		l.waitForTransaction(make([]byte, 32), uint64(sequence))
 	}
 	return nil
 }
 
 func (l *LibraClient) waitForTransaction(address types.AccountAddress, sequenceNumber uint64) {
-	maxIteration := 10
+	maxIteration := 50
 	for {
 		maxIteration--
 		seqNo, _ := l.GetSequenceNumber(address)
@@ -145,13 +145,8 @@ func (l *LibraClient) waitForTransaction(address types.AccountAddress, sequenceN
 }
 
 func (l *LibraClient) GetSequenceNumber(address types.AccountAddress) (uint64, error) {
-	res, err := l.GetAccountBlob(address.ToString())
-	if err != nil {
-		return 0, err
-	}
-	account := &AccountState{}
-	payload := res.AccountStateWithProof.Blob.Blob
-	err = account.Deserialize(payload)
+	account, err := l.GetAccountState(address.ToString())
+
 	if err != nil {
 		return 0, err
 	}
