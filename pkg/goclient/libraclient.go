@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/codemaveric/libra-go/gowrapper"
+	"github.com/codemaveric/libra-go/pkg/librawallet"
 	"github.com/codemaveric/libra-go/pkg/types"
 	"google.golang.org/grpc"
 )
@@ -39,6 +40,28 @@ func NewLibraClient(config LibraClientConfig) *LibraClient {
 	}
 	client := gowrapper.NewAdmissionControlClient(conn)
 	return &LibraClient{client: client}
+}
+
+func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddress string, amount uint64, gasUnitPrice uint64, maxGasAmount uint64, isBlocking bool) error {
+	program, err := encodeTransferProgram(receipientAddress, amount)
+	if err != nil {
+		return err
+	}
+	req, err := createSubmitTransactionReq(program, sender, gasUnitPrice, maxGasAmount)
+	if err != nil {
+		return err
+	}
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+	res, err := l.client.SubmitTransaction(ctx, req, grpc.WaitForReady(true))
+	if err != nil {
+		return err
+	}
+	// If status is not Accepted return error else increase the sequence number of the sender
+	if acStatus := res.GetAcStatus(); acStatus != gowrapper.AdmissionControlStatus_Accepted {
+		return errors.New(fmt.Sprintf("Transaction failed with status: %s", gowrapper.AdmissionControlStatus_name[int32(acStatus)]))
+	}
+	sender.Sequence += 1
+	return nil
 }
 
 func (l *LibraClient) GetAccountState(address string) (*AccountState, error) {
