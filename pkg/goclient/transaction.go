@@ -25,7 +25,7 @@ func encodeTransferProgram(receiverAddress string, numCoins uint64) (*gowrapper.
 	code, _ := hex.DecodeString(HEX_PEER_TO_PEER_TRANSFER_CODE)
 	address, _ := hex.DecodeString(receiverAddress)
 	amount := make([]byte, 8)
-	binary.LittleEndian.PutUint64(amoun, numCoins)
+	binary.LittleEndian.PutUint64(amount, numCoins)
 	arg1 := &gowrapper.TransactionArgument{Type: gowrapper.TransactionArgument_ADDRESS, Data: address}
 	arg2 := &gowrapper.TransactionArgument{Type: gowrapper.TransactionArgument_U64, Data: amount}
 	arg := []*gowrapper.TransactionArgument{arg1, arg2}
