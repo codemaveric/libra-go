@@ -12,8 +12,14 @@ type Account struct {
 	Sequence uint64
 }
 
-func AccountFromSecret(privateKey crypto.PrivateKey) *Account {
-	keyPair := crypto.NewKeyPair(privateKey.Value)
+func GenerateKeyPair(mnemonic Mnemonic) *crypto.KeyPair {
+	seed := NewSeed(mnemonic, "")
+	keyfactory := NewKeyFactory(seed)
+	priveKey := keyfactory.GenerateKey(0)
+	return crypto.NewKeyPair(priveKey.PrivateKey)
+}
+
+func AccountFromSecret(keyPair *crypto.KeyPair) *Account {
 	digest := sha3.Sum256(keyPair.PublicKey.Value)
 	address := digest[:]
 	return &Account{Address: address, KeyPair: keyPair}
