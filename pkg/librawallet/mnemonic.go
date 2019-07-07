@@ -8,7 +8,7 @@ import (
 
 type Mnemonic []string
 
-func generateMnemonic() Mnemonic {
+func GenerateMnemonic() Mnemonic {
 	entropy, _ := bip39.NewEntropy(256)
 	mnemonic, _ := bip39.NewMnemonic(entropy)
 	return strings.Split(mnemonic, " ")

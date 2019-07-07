@@ -3,16 +3,16 @@ package goclient
 import (
 	"encoding/binary"
 	"encoding/hex"
-	"encoding/json"
 
 	"github.com/codemaveric/libra-go/gowrapper"
 	"github.com/codemaveric/libra-go/pkg/crypto"
 	"github.com/codemaveric/libra-go/pkg/librawallet"
+	"github.com/golang/protobuf/proto"
 )
 
 const GAS_UNIT_PRICE uint64 = 0
 const MAX_GAS_AMOUNT uint64 = 10000
-const TX_EXPIRATION uint64 = 100
+const TX_EXPIRATION int64 = 100
 
 // Const of transaction program
 const HEX_PEER_TO_PEER_TRANSFER_CODE = "4c49425241564d0a010007014a00000004000000034e000000060000000c54000000050000000d5900000004000000055d0000002900000004860000002000000007a60000000d00000000000001000200010300020002040203020402063c53454c463e0c4c696272614163636f756e74046d61696e0f7061795f66726f6d5f73656e64657200000000000000000000000000000000000000000000000000000000000000000001020004000c000c01110102"
@@ -37,14 +37,15 @@ func encodeTransferProgram(receiverAddress string, numCoins uint64) (*gowrapper.
 
 func createSubmitTransactionReq(program *gowrapper.Program, sender *librawallet.Account, gasUnitPrice, maxGasAmount uint64) (*gowrapper.SubmitTransactionRequest, error) {
 	raw_txn := &gowrapper.RawTransaction{
-		SequenceNumber: sender.Sequence,
+		SequenceNumber: 5,
 		SenderAccount:  sender.Address,
 		MaxGasAmount:   maxGasAmount,
 		GasUnitPrice:   gasUnitPrice,
 		Payload:        &gowrapper.RawTransaction_Program{program},
 		ExpirationTime: 0,
 	}
-	txn_bytes, err := json.Marshal(&raw_txn)
+	proto.Marshal(raw_txn)
+	txn_bytes, err := proto.Marshal(raw_txn)
 	if err != nil {
 		return nil, err
 	}

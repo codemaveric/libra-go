@@ -17,7 +17,7 @@ type WalletLibrary struct {
 func NewWalletLibrary(mnemonicStr string) *WalletLibrary {
 	var mnemonic Mnemonic
 	if mnemonicStr == "" {
-		mnemonic = generateMnemonic()
+		mnemonic = GenerateMnemonic()
 	} else {
 		mnemonic = strings.Split(mnemonicStr, " ")
 	}
