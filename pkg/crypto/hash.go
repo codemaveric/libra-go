@@ -19,12 +19,16 @@ type HashValue struct {
 	hash [HASH_LENGTH]byte
 }
 
+func (h *HashValue) GetValue() [HASH_LENGTH]byte {
+	return h.hash
+}
+
 func from_sha3(buffer []byte) *HashValue {
 	state := sha3.New256()
-	digest := state.Sum(buffer)
-	var hash [HASH_LENGTH]byte
-	copy(hash[:], digest)
-	return &HashValue{hash: hash}
+	state.Write(buffer)
+	var digest [HASH_LENGTH]byte
+	state.Sum(digest[:0])
+	return &HashValue{hash: digest}
 }
 
 type CryptoHasher struct {
@@ -40,29 +44,12 @@ func NewCryptoHasher(salt []byte) *CryptoHasher {
 		log.Println(hash)
 		state.Write(hash[:])
 	}
-
 	return &CryptoHasher{state: state}
 }
 
 func (c *CryptoHasher) Hash(data []byte) *HashValue {
-	digest := c.state.Sum(data)
-	var hash [HASH_LENGTH]byte
-	copy(hash[:], digest)
-	return &HashValue{hash: hash}
+	c.state.Write(data)
+	var digest [HASH_LENGTH]byte
+	c.state.Sum(digest[:0])
+	return &HashValue{hash: digest}
 }
-
-// type CryptoHash struct {
-// 	hasher *CryptoHasher
-// }
-
-// func NewCryptoHash(salt string) *CryptoHash {
-// 	hasher := NewCryptoHasher([]byte(salt))
-// 	return &CryptoHash{hasher: hasher}
-// }
-
-// func (c *CryptoHash) Hash(data []byte) *HashValue {
-// 	digest := c.hasher.state.Sum(data)
-// 	var hash [HASH_LENGTH]byte
-// 	copy(hash[:], digest)
-// 	return &HashValue{hash: hash}
-// }

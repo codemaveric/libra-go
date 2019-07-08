@@ -3,6 +3,7 @@ package goclient
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"time"
 
 	"github.com/codemaveric/libra-go/gowrapper"
 	"github.com/codemaveric/libra-go/pkg/crypto"
@@ -29,7 +30,7 @@ func encodeTransferProgram(receiverAddress string, numCoins uint64) (*gowrapper.
 	arg1 := &gowrapper.TransactionArgument{Type: gowrapper.TransactionArgument_ADDRESS, Data: address}
 	arg2 := &gowrapper.TransactionArgument{Type: gowrapper.TransactionArgument_U64, Data: amount}
 	arg := []*gowrapper.TransactionArgument{arg1, arg2}
-	modules := [][]byte{} // Empty model
+	modules := [][]byte{} // Empty modules
 	pr := &gowrapper.Program{Code: code, Arguments: arg, Modules: modules}
 
 	return pr, nil
@@ -37,12 +38,12 @@ func encodeTransferProgram(receiverAddress string, numCoins uint64) (*gowrapper.
 
 func createSubmitTransactionReq(program *gowrapper.Program, sender *librawallet.Account, gasUnitPrice, maxGasAmount uint64) (*gowrapper.SubmitTransactionRequest, error) {
 	raw_txn := &gowrapper.RawTransaction{
-		SequenceNumber: 5,
+		SequenceNumber: sender.Sequence,
 		SenderAccount:  sender.Address,
 		MaxGasAmount:   maxGasAmount,
 		GasUnitPrice:   gasUnitPrice,
 		Payload:        &gowrapper.RawTransaction_Program{program},
-		ExpirationTime: 0,
+		ExpirationTime: uint64(time.Now().Unix() + TX_EXPIRATION),
 	}
 	proto.Marshal(raw_txn)
 	txn_bytes, err := proto.Marshal(raw_txn)
