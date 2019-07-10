@@ -3,13 +3,6 @@ Libra Golang Client is library to interact with Libra Blockchain
 
 > Note: The project is still under major development! The Package is not stable and will keep changing!
 
-## Installation
-Run to install the package
-
-```
-go get github.com/codemaveric/libra-go
-```
-
 ## Usage
 Example
 
