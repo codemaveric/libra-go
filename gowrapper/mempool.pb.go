@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -101,10 +99,10 @@ type AddTransactionWithValidationResponse struct {
 	// transaction will have version bigger than this 'current_version'
 	CurrentVersion uint64 `protobuf:"varint,1,opt,name=current_version,json=currentVersion,proto3" json:"current_version,omitempty"`
 	// The result of the transaction submission
-	Status               MempoolAddTransactionStatus `protobuf:"varint,2,opt,name=status,proto3,enum=mempool.MempoolAddTransactionStatus" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
-	XXX_unrecognized     []byte                      `json:"-"`
-	XXX_sizecache        int32                       `json:"-"`
+	Status               *MempoolAddTransactionStatus `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_unrecognized     []byte                       `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *AddTransactionWithValidationResponse) Reset()         { *m = AddTransactionWithValidationResponse{} }
@@ -139,11 +137,11 @@ func (m *AddTransactionWithValidationResponse) GetCurrentVersion() uint64 {
 	return 0
 }
 
-func (m *AddTransactionWithValidationResponse) GetStatus() MempoolAddTransactionStatus {
+func (m *AddTransactionWithValidationResponse) GetStatus() *MempoolAddTransactionStatus {
 	if m != nil {
 		return m.Status
 	}
-	return MempoolAddTransactionStatus_Valid
+	return nil
 }
 
 // -----------------------------------------------------------------------------
@@ -528,7 +526,7 @@ var fileDescriptor_a84c3667d8c2093a = []byte{
 	0x68, 0x30, 0xf2, 0x12, 0x56, 0x28, 0x63, 0xb2, 0x10, 0x3a, 0xea, 0xd2, 0x84, 0x0a, 0x86, 0xcd,
 	0x39, 0x43, 0xaf, 0xbb, 0xf2, 0x91, 0xad, 0x06, 0x3f, 0x3d, 0xd8, 0xb9, 0xfb, 0x86, 0x2a, 0x93,
 	0x42, 0x61, 0xb9, 0x23, 0x2b, 0xf2, 0x1c, 0x85, 0x8e, 0x2e, 0x31, 0x57, 0x5c, 0xda, 0x7b, 0xce,
-	0x85, 0x75, 0x57, 0x3e, 0xb7, 0x55, 0xf2, 0x16, 0xe6, 0xad, 0x87, 0xe6, 0x32, 0xf5, 0xf6, 0x4e,
+	0x85, 0x75, 0x57, 0x3e, 0xb7, 0x55, 0xf2, 0x16, 0xe6, 0xad, 0x87, 0xe6, 0x32, 0xb5, 0xf6, 0x4e,
 	0x6b, 0x98, 0xc2, 0x07, 0xfb, 0x1d, 0x97, 0xeb, 0x18, 0x6e, 0xe8, 0x7a, 0x82, 0x6b, 0x58, 0x39,
 	0x41, 0x7d, 0x94, 0x48, 0xf6, 0x75, 0x68, 0xee, 0x0e, 0xd4, 0x4b, 0x8f, 0xba, 0x65, 0x2d, 0x52,
 	0xfc, 0x1a, 0x9d, 0x70, 0xe9, 0x9c, 0x21, 0x76, 0xf8, 0x35, 0x92, 0x43, 0x58, 0x1e, 0x49, 0xb5,
@@ -551,7 +549,7 @@ var fileDescriptor_a84c3667d8c2093a = []byte{
 	0x1b, 0xd3, 0xc1, 0xe1, 0x5e, 0x47, 0xad, 0xcf, 0x7b, 0x3d, 0xae, 0xfb, 0x45, 0xb7, 0xc5, 0x64,
 	0xba, 0xcf, 0x64, 0x8c, 0x29, 0xbd, 0xc4, 0x9c, 0xb3, 0xfd, 0x84, 0x77, 0x73, 0xca, 0x12, 0x8e,
 	0x42, 0xef, 0xf7, 0xe4, 0xf7, 0x9c, 0x66, 0x19, 0xe6, 0xdd, 0x79, 0xf3, 0xef, 0x7e, 0xfd, 0x37,
-	0x00, 0x00, 0xff, 0xff, 0xdb, 0x70, 0x51, 0x08, 0xfe, 0x05, 0x00, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0xec, 0x12, 0xe7, 0x31, 0xfe, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -638,23 +636,6 @@ type MempoolServer interface {
 	CommitTransactions(context.Context, *CommitTransactionsRequest) (*CommitTransactionsResponse, error)
 	// Check the health of mempool
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
-}
-
-// UnimplementedMempoolServer can be embedded to have forward compatible implementations.
-type UnimplementedMempoolServer struct {
-}
-
-func (*UnimplementedMempoolServer) AddTransactionWithValidation(ctx context.Context, req *AddTransactionWithValidationRequest) (*AddTransactionWithValidationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddTransactionWithValidation not implemented")
-}
-func (*UnimplementedMempoolServer) GetBlock(ctx context.Context, req *GetBlockRequest) (*GetBlockResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBlock not implemented")
-}
-func (*UnimplementedMempoolServer) CommitTransactions(ctx context.Context, req *CommitTransactionsRequest) (*CommitTransactionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CommitTransactions not implemented")
-}
-func (*UnimplementedMempoolServer) HealthCheck(ctx context.Context, req *HealthCheckRequest) (*HealthCheckResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
 }
 
 func RegisterMempoolServer(s *grpc.Server, srv MempoolServer) {
