@@ -58,8 +58,8 @@ func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddre
 	}
 	acStatus := res.GetAcStatus()
 	// If status is not Accepted return error else increase the sequence number of the sender
-	if acStatus != gowrapper.AdmissionControlStatus_Accepted {
-		return errors.New(fmt.Sprintf("Transaction failed with status: %s", gowrapper.AdmissionControlStatus_name[int32(acStatus)]))
+	if acStatus.Code != gowrapper.AdmissionControlStatusCode_Accepted {
+		return errors.New(fmt.Sprintf("Transaction failed with status: %s, Message: %s", gowrapper.AdmissionControlStatusCode_name[int32(acStatus.Code)], acStatus.Message))
 	}
 	sender.Sequence += 1
 	return nil
