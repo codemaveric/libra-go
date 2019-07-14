@@ -2,7 +2,6 @@ package goclient
 
 import (
 	"context"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -42,6 +41,10 @@ func NewLibraClient(config LibraClientConfig) *LibraClient {
 	return &LibraClient{client: client}
 }
 
+func (l *LibraClient) GetAccountTransaction(address string, sequenceNumber uint64, fetchEvents bool) {
+
+}
+
 func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddress string, amount uint64, gasUnitPrice uint64, maxGasAmount uint64, isBlocking bool) error {
 	program, err := encodeTransferProgram(receipientAddress, amount)
 	if err != nil {
@@ -79,11 +82,8 @@ func (l *LibraClient) GetAccountState(address string) (*AccountState, error) {
 }
 
 func (g *LibraClient) GetAccountBlob(address string) (*gowrapper.GetAccountStateResponse, error) {
-	decoded, err := hex.DecodeString(address)
-	if err != nil {
-		return nil, err
-	}
-	accountState := &gowrapper.GetAccountStateRequest{Address: decoded}
+
+	accountState := &gowrapper.GetAccountStateRequest{Address: types.NewAccountAddress(address)}
 	accountStateReq := &gowrapper.RequestItem_GetAccountStateRequest{GetAccountStateRequest: accountState}
 	requestItem := &gowrapper.RequestItem{RequestedItems: accountStateReq}
 
@@ -113,14 +113,14 @@ func verify(req *gowrapper.UpdateToLatestLedgerRequest, resp *gowrapper.UpdateTo
 
 	// Verify that the same or a newer ledger info is returned.
 	if ledgeInfo.GetVersion() <= req.GetClientKnownVersion() {
-		return errors.New("Got stale ledger_info with version {}, known version: {}.")
+		return errors.New(fmt.Sprintf("Got stale ledger_info with version %d, known version: %d.", req.GetClientKnownVersion(), ledgeInfo.GetVersion()))
 	}
 	// Verify ledger info signatures.
 	if !(ledgeInfo.GetVersion() == 0 && len(signatures) == 0) {
 
 	}
 	if len(req.GetRequestedItems()) != len(resp.GetResponseItems()) {
-		return errors.New("Number of request items ({}) does not match that of response items ({}).")
+		return errors.New(fmt.Sprintf("Number of request items %d does not match that of response items %d.", len(req.GetRequestedItems()), len(resp.GetResponseItems())))
 	}
 	return nil
 }
@@ -142,8 +142,8 @@ func (l *LibraClient) MintWithFaucetService(address string, num_coins uint64, is
 	if err != nil {
 		return err
 	}
-	hdfj := string(payload)
-	sequence, _ := strconv.Atoi(hdfj)
+
+	sequence, _ := strconv.Atoi(string(payload))
 	//accountAddress := types.NewAccountAddress(address)
 	if is_blocking {
 		l.waitForTransaction(make([]byte, 32), uint64(sequence))
@@ -170,7 +170,6 @@ func (l *LibraClient) waitForTransaction(address types.AccountAddress, sequenceN
 
 func (l *LibraClient) GetSequenceNumber(address types.AccountAddress) (uint64, error) {
 	account, err := l.GetAccountState(address.ToString())
-
 	if err != nil {
 		return 0, err
 	}
