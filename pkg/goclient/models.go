@@ -2,8 +2,6 @@ package goclient
 
 import (
 	"encoding/hex"
-	"fmt"
-
 	"github.com/codemaveric/libra-go/pkg/common"
 )
 
@@ -55,7 +53,7 @@ func decodeAccountStateBlob(blob []byte) map[string][]byte {
 		for k := 0; k < valueLen; k++ {
 			valueBuffer[k] = canonicalSerializer.Read8()
 		}
-		fmt.Println(hex.EncodeToString(keyBuffer))
+		// fmt.Println(hex.EncodeToString(keyBuffer))
 		state[hex.EncodeToString(keyBuffer)] = valueBuffer[:]
 	}
 	return state

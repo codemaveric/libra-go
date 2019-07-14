@@ -69,9 +69,11 @@ func (k *KeyFactory) GenerateKey(childNumber uint64) *ExtendedPrivKey {
 	r := hkdf.Expand(sha3.New256, k.Master, info)
 
 	seed := make([]byte, 32)
-	n, _ := io.ReadFull(r, seed)
-	log.Println(seed)
-	log.Println(n)
+	_, err := io.ReadFull(r, seed)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	privateKey := ed25519.NewKeyFromSeed(seed)
 	return &ExtendedPrivKey{ChildNumber: childNumber, PrivateKey: privateKey}
 }

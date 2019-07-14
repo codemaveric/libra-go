@@ -1,10 +1,8 @@
 package crypto
 
 import (
-	"hash"
-	"log"
-
 	"golang.org/x/crypto/sha3"
+	"hash"
 )
 
 const HASH_LENGTH = 32
@@ -41,7 +39,7 @@ func NewCryptoHasher(salt []byte) *CryptoHasher {
 		hashSuf := []byte(LIBRA_HASH_SUFFIX)
 		salt = append(salt, hashSuf...)
 		hash := from_sha3(salt).hash
-		log.Println(hash)
+		// log.Println(hash)
 		state.Write(hash[:])
 	}
 	return &CryptoHasher{state: state}
