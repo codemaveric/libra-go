@@ -45,39 +45,47 @@ func main() {
 		Port:    "80",
 		Network: goclient.TestNet,
 	}
-	// Instantiate LibraClient with Configuration
+	// Instantiate LibraClient with Configuration.
 	libraClient := goclient.NewLibraClient(config)
 
-	// Mint Coin from Test Faucet to account generated
+	// Mint Coin from Test Faucet to account generated.
 	err = libraClient.MintWithFaucetService(sourceAccount.Address.ToString(), 500000000, true)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Get Account State
+	// Get Account State.
 	SourceaccState, err := libraClient.GetAccountState(sourceAccount.Address.ToString())
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Print(SourceaccState.Balance)
 
-	// Set the current account sequence
+	// Set the current account sequence.
 	sourceAccount.Sequence = SourceaccState.SequenceNumber
 
-	// Transfer Coins from source account to destination address
+	// Transfer Coins from source account to destination address.
 	err = libraClient.TransferCoins(sourceAccount, "f4aebe371e4176143c3409122d0adf43c0e00a6552b5b0ae9980d8981fcd0221", 11000000, 0, 10000, true)
 	if err != nil {
 		log.Fatal(err)
-	}	
+	}
+	
+	// Get Account Transaction by Sequence Number.
+	transaction, err := libraClient.GetAccountTransaction(sourceAccount.Address.ToString(), 0, true)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(transaction)
 }
 
 ```
 
 ## Roadmap
 
-1) Transaction History.
-2) Get Transaction Details with tran_id
+1) Get Transactions.
 
 ## Contribution
 Feel free to contribute by opening issues or PR's.
