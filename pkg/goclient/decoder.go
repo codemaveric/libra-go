@@ -11,7 +11,6 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-
 func accountResourcePath() string {
 	// Hardcoded Resource Path, because for now recomputing the resource path gives the same result everytime.
 	return "01217da6c6b3e19f1825cfb2676daecce3bf3de03cf26647c78df00b371b25cc97"
