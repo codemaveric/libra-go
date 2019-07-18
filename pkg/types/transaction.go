@@ -65,9 +65,31 @@ type SignedTransaction struct {
 	RawTxnBytes []byte
 }
 
+// `TransactionInfo` is the object we store in the transaction accumulator. It
+// consists of the transaction as well as the execution result of this
+// transaction. This are later returned to the client so that a client can
+// validate the tree
+type TransactionInfo struct {
+	// Hash of the signed transaction that is stored
+	SignTransactionHash []byte
+	// The root hash of Sparse Merkle Tree describing the world state at the end
+	// of this transaction
+	StateRootHash []byte
+	// The root hash of Merkle Accumulator storing all events emitted during this
+	// transaction.
+	EventRootHash []byte
+	// The amount of gas used by this transaction.
+	GasUsed uint64
+}
+
 type SignedTransactionWithProof struct {
+	// The version of the returned signed transaction.
+	Version           uint64
+	// The transaction itself.
 	SignedTransaction *SignedTransaction
+	// The proof authenticating the signed transaction.
 	Proof             SignedTransactionProof
+	// The events yielded by executing the transaction.
 	Events            []*ContractEvent
 }
 

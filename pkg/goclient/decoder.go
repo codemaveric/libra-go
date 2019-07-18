@@ -11,15 +11,57 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-
 func accountResourcePath() string {
 	// Hardcoded Resource Path, because for now recomputing the resource path gives the same result everytime.
 	return "01217da6c6b3e19f1825cfb2676daecce3bf3de03cf26647c78df00b371b25cc97"
 }
 
+func decodeTransactionsListWP(transactionListWP *gowrapper.TransactionListWithProof) []*types.SignedTransaction {
+	signedTransactions := []*types.SignedTransaction{}
+
+	for _, v := range transactionListWP.GetTransactions() {
+		signedTransaction, _ := decodeSignedTransaction(v)
+		signedTransactions = append(signedTransactions, signedTransaction)
+	}
+	return signedTransactions
+}
+
 func decodeSignedTransactionWP(signedTransactionWP *gowrapper.SignedTransactionWithProof) (*types.SignedTransactionWithProof, error) {
 	// Decode Transaction
-	signedTransaction := signedTransactionWP.GetSignedTransaction()
+	libraSignTransaction, err := decodeSignedTransaction(signedTransactionWP.GetSignedTransaction())
+
+	if err != nil {
+		return nil, err
+	}
+	// Decode Events
+	eventList := decodeEventList(signedTransactionWP.GetEvents())
+
+	libraSignedTransactionWP := &types.SignedTransactionWithProof{
+		Version:           signedTransactionWP.GetVersion(),
+		SignedTransaction: libraSignTransaction,
+		Proof:             signedTransactionWP.GetProof(),
+		Events:            eventList,
+	}
+
+	return libraSignedTransactionWP, nil
+}
+
+func decodeEventList(events *gowrapper.EventsList) []*types.ContractEvent {
+	eventList := []*types.ContractEvent{}
+	if events != nil {
+		for _, v := range events.GetEvents() {
+			eventList = append(eventList, &types.ContractEvent{
+				AccountAddress: v.AccessPath.GetAddress(),
+				EventData:      v.GetEventData(),
+				SequenceNumber: v.GetSequenceNumber(),
+				Path:           v.AccessPath.GetPath(),
+			})
+		}
+	}
+	return eventList
+}
+
+func decodeSignedTransaction(signedTransaction *gowrapper.SignedTransaction) (*types.SignedTransaction, error) {
 	rawTxnBytes := signedTransaction.GetRawTxnBytes()
 	transaction, err := decodeRawTransactionBytes(rawTxnBytes)
 	if err != nil {
@@ -32,26 +74,7 @@ func decodeSignedTransactionWP(signedTransactionWP *gowrapper.SignedTransactionW
 		Signature:      &crypto.Signature{Value: signedTransaction.GetSenderSignature()},
 	}
 
-	// Decode Events
-	eventList := []*types.ContractEvent{}
-	events := signedTransactionWP.GetEvents()
-	if events != nil {
-		for _, v := range events.GetEvents() {
-			eventList = append(eventList, &types.ContractEvent{
-				AccountAddress: v.AccessPath.GetAddress(),
-				EventData:      v.GetEventData(),
-				SequenceNumber: v.GetSequenceNumber(),
-				Path:           v.AccessPath.GetPath(),
-			})
-		}
-	}
-	libraSignedTransactionWP := &types.SignedTransactionWithProof{
-		SignedTransaction: libraSignTransaction,
-		Proof:             signedTransactionWP.GetProof(),
-		Events:            eventList,
-	}
-
-	return libraSignedTransactionWP, nil
+	return libraSignTransaction, nil
 }
 
 func decodeRawTransactionBytes(rawTxnBytes []byte) (*types.RawTransaction, error) {
