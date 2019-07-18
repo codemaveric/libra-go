@@ -41,8 +41,20 @@ func NewLibraClient(config LibraClientConfig) *LibraClient {
 	return &LibraClient{client: client}
 }
 
-func (l *LibraClient) GetAccountTransaction(address string, sequenceNumber uint64, fetchEvents bool) {
+// Get Transaction by address and sequenceNumber.
+func (l *LibraClient) GetAccountTransaction(address string, sequenceNumber uint64, fetchEvents bool) (*types.SignedTransactionWithProof, error) {
+	accountTransactionSequenceNumber := &gowrapper.GetAccountTransactionBySequenceNumberRequest{Account: types.NewAccountAddress(address), SequenceNumber: sequenceNumber, FetchEvents: fetchEvents}
+	accountTransactionSequenceNumberReq := &gowrapper.RequestItem_GetAccountTransactionBySequenceNumberRequest{accountTransactionSequenceNumber}
+	requestItem := &gowrapper.RequestItem{RequestedItems: accountTransactionSequenceNumberReq}
 
+	res, err := l.GetLatestWithProof([]*gowrapper.RequestItem{requestItem})
+	if err != nil {
+
+	}
+	responseItems := res.ResponseItems[0].ResponseItems
+	response := responseItems.(*gowrapper.ResponseItem_GetAccountTransactionBySequenceNumberResponse)
+	accSeqResponse := response.GetAccountTransactionBySequenceNumberResponse
+	return decodeSignedTransactionWP(accSeqResponse.GetSignedTransactionWithProof())
 }
 
 func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddress string, amount uint64, gasUnitPrice uint64, maxGasAmount uint64, isBlocking bool) error {
@@ -68,12 +80,12 @@ func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddre
 	return nil
 }
 
-func (l *LibraClient) GetAccountState(address string) (*AccountState, error) {
+func (l *LibraClient) GetAccountState(address string) (*types.AccountState, error) {
 	res, err := l.GetAccountBlob(address)
 	if err != nil {
 		return nil, err
 	}
-	account := &AccountState{}
+	account := &types.AccountState{}
 	payload := res.AccountStateWithProof.Blob.Blob
 	accountTree := decodeAccountStateBlob(payload)
 	ap := accountResourcePath()
