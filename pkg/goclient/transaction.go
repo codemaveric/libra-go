@@ -46,7 +46,7 @@ func createSubmitTransactionReq(program *gowrapper.Program, sender *librawallet.
 	if err != nil {
 		return nil, err
 	}
-	//Initialize a new RAW_TRANSACTINO Hasher
+	//Initialize a new RAW_TRANSACTION Hasher
 	cryptoHasher := crypto.NewCryptoHasher([]byte(crypto.RAW_TRANSACTION))
 	hash := cryptoHasher.Hash(txn_bytes) // Hash Transaction byte
 

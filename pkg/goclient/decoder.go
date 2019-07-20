@@ -2,6 +2,8 @@ package goclient
 
 import (
 	"encoding/hex"
+	"errors"
+
 	"github.com/codemaveric/libra-go/gowrapper"
 	"github.com/codemaveric/libra-go/pkg/common"
 	"github.com/codemaveric/libra-go/pkg/crypto"
@@ -14,9 +16,81 @@ func accountResourcePath() string {
 	return "01217da6c6b3e19f1825cfb2676daecce3bf3de03cf26647c78df00b371b25cc97"
 }
 
+func decodeTransactionsListWP(transactionListWP *gowrapper.TransactionListWithProof) ([]*types.SignedTransactionWithProof, error) {
+
+	if transactionListWP == nil {
+		return nil, errors.New("Empty TransactionsListWithProof")
+	}
+
+	signedTransactionWP := []*types.SignedTransactionWithProof{}
+	signedTransactions := transactionListWP.GetTransactions()
+
+	if len(signedTransactions) < 1 {
+		return nil, errors.New("Transactions not found")
+	}
+
+	firstTransactionVersion := transactionListWP.GetFirstTransactionVersion().Value
+	eventsVersion := transactionListWP.GetEventsForVersions()
+	var eventList []*gowrapper.EventsList
+
+	if eventsVersion != nil {
+		eventList = eventsVersion.GetEventsForVersion()
+	}
+
+	for i := 0; i < len(signedTransactions); i++ {
+		var events []*types.ContractEvent
+		// TODO: I think I should come back and check this later
+		if eventsVersion != nil {
+			events = decodeEventList(eventList[i])
+		}
+		signedTransaction, _ := decodeSignedTransaction(signedTransactions[i])
+		signedTransactionWP = append(signedTransactionWP, &types.SignedTransactionWithProof{
+			SignedTransaction: signedTransaction,
+			Version:           firstTransactionVersion,
+			Events:            events,
+		})
+		firstTransactionVersion++
+	}
+
+	return signedTransactionWP, nil
+}
+
 func decodeSignedTransactionWP(signedTransactionWP *gowrapper.SignedTransactionWithProof) (*types.SignedTransactionWithProof, error) {
 	// Decode Transaction
-	signedTransaction := signedTransactionWP.GetSignedTransaction()
+	libraSignTransaction, err := decodeSignedTransaction(signedTransactionWP.GetSignedTransaction())
+
+	if err != nil {
+		return nil, err
+	}
+	// Decode Events
+	eventList := decodeEventList(signedTransactionWP.GetEvents())
+
+	libraSignedTransactionWP := &types.SignedTransactionWithProof{
+		Version:           signedTransactionWP.GetVersion(),
+		SignedTransaction: libraSignTransaction,
+		Proof:             signedTransactionWP.GetProof(),
+		Events:            eventList,
+	}
+
+	return libraSignedTransactionWP, nil
+}
+
+func decodeEventList(events *gowrapper.EventsList) []*types.ContractEvent {
+	eventList := []*types.ContractEvent{}
+	if events != nil {
+		for _, v := range events.GetEvents() {
+			eventList = append(eventList, &types.ContractEvent{
+				AccountAddress: v.AccessPath.GetAddress(),
+				EventData:      v.GetEventData(),
+				SequenceNumber: v.GetSequenceNumber(),
+				Path:           v.AccessPath.GetPath(),
+			})
+		}
+	}
+	return eventList
+}
+
+func decodeSignedTransaction(signedTransaction *gowrapper.SignedTransaction) (*types.SignedTransaction, error) {
 	rawTxnBytes := signedTransaction.GetRawTxnBytes()
 	transaction, err := decodeRawTransactionBytes(rawTxnBytes)
 	if err != nil {
@@ -29,26 +103,7 @@ func decodeSignedTransactionWP(signedTransactionWP *gowrapper.SignedTransactionW
 		Signature:      &crypto.Signature{Value: signedTransaction.GetSenderSignature()},
 	}
 
-	// Decode Events
-	eventList := []*types.ContractEvent{}
-	events := signedTransactionWP.GetEvents()
-	if events != nil {
-		for _, v := range events.GetEvents() {
-			eventList = append(eventList, &types.ContractEvent{
-				AccountAddress: v.AccessPath.GetAddress(),
-				EventData:      v.GetEventData(),
-				SequenceNumber: v.GetSequenceNumber(),
-				Path:           v.AccessPath.GetPath(),
-			})
-		}
-	}
-	libraSignedTransactionWP := &types.SignedTransactionWithProof{
-		SignedTransaction: libraSignTransaction,
-		Proof:             signedTransactionWP.GetProof(),
-		Events:            eventList,
-	}
-
-	return libraSignedTransactionWP, nil
+	return libraSignTransaction, nil
 }
 
 func decodeRawTransactionBytes(rawTxnBytes []byte) (*types.RawTransaction, error) {
