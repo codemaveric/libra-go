@@ -83,14 +83,14 @@ type TransactionInfo struct {
 }
 
 type SignedTransactionWithProof struct {
-	// The version of the returned signed transaction.
-	Version           uint64
+	// The version of the returned signed transaction. This is also like transaction Id
+	Version uint64
 	// The transaction itself.
 	SignedTransaction *SignedTransaction
 	// The proof authenticating the signed transaction.
-	Proof             SignedTransactionProof
+	Proof SignedTransactionProof
 	// The events yielded by executing the transaction.
-	Events            []*ContractEvent
+	Events []*ContractEvent
 }
 
 type SignedTransactionProof interface {

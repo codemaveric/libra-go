@@ -2,6 +2,8 @@ package goclient
 
 import (
 	"encoding/hex"
+	"errors"
+
 	"fmt"
 
 	"github.com/codemaveric/libra-go/gowrapper"
@@ -16,14 +18,43 @@ func accountResourcePath() string {
 	return "01217da6c6b3e19f1825cfb2676daecce3bf3de03cf26647c78df00b371b25cc97"
 }
 
-func decodeTransactionsListWP(transactionListWP *gowrapper.TransactionListWithProof) []*types.SignedTransaction {
-	signedTransactions := []*types.SignedTransaction{}
+func decodeTransactionsListWP(transactionListWP *gowrapper.TransactionListWithProof) ([]*types.SignedTransactionWithProof, error) {
 
-	for _, v := range transactionListWP.GetTransactions() {
-		signedTransaction, _ := decodeSignedTransaction(v)
-		signedTransactions = append(signedTransactions, signedTransaction)
+	if transactionListWP == nil {
+		return nil, errors.New("Empty TransactionsListWithProof")
 	}
-	return signedTransactions
+
+	signedTransactionWP := []*types.SignedTransactionWithProof{}
+	signedTransactions := transactionListWP.GetTransactions()
+
+	if len(signedTransactions) < 1 {
+		return nil, errors.New("Transactions not found")
+	}
+
+	firstTransactionVersion := transactionListWP.GetFirstTransactionVersion().Value
+	eventsVersion := transactionListWP.GetEventsForVersions()
+	var eventList []*gowrapper.EventsList
+
+	if eventsVersion != nil {
+		eventList = eventsVersion.GetEventsForVersion()
+	}
+
+	for i := 0; i < len(signedTransactions); i++ {
+		var events []*types.ContractEvent
+		// TODO: I think I should come back and check this later
+		if eventsVersion != nil {
+			events = decodeEventList(eventList[i])
+		}
+		signedTransaction, _ := decodeSignedTransaction(signedTransactions[i])
+		signedTransactionWP = append(signedTransactionWP, &types.SignedTransactionWithProof{
+			SignedTransaction: signedTransaction,
+			Version:           firstTransactionVersion,
+			Events:            events,
+		})
+		firstTransactionVersion++
+	}
+
+	return signedTransactionWP, nil
 }
 
 func decodeSignedTransactionWP(signedTransactionWP *gowrapper.SignedTransactionWithProof) (*types.SignedTransactionWithProof, error) {

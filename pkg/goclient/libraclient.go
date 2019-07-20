@@ -42,14 +42,16 @@ func NewLibraClient(config LibraClientConfig) *LibraClient {
 }
 
 // Get Transactions from starting version to number of limit.
-func (l *LibraClient) GetTransactions(startVersion, limit uint64, fetchEvents bool) []*types.SignedTransaction {
+// startVersion is Transaction to start from
+// limit is number of transactions to return
+func (l *LibraClient) GetTransactions(startVersion, limit uint64, fetchEvents bool) ([]*types.SignedTransactionWithProof, error) {
 	accountTransactionSequenceNumber := &gowrapper.GetTransactionsRequest{StartVersion: startVersion, Limit: limit, FetchEvents: fetchEvents}
 	accountTransactionSequenceNumberReq := &gowrapper.RequestItem_GetTransactionsRequest{accountTransactionSequenceNumber}
 	requestItem := &gowrapper.RequestItem{RequestedItems: accountTransactionSequenceNumberReq}
 
 	res, err := l.GetLatestWithProof([]*gowrapper.RequestItem{requestItem})
 	if err != nil {
-
+		return nil, err
 	}
 
 	responseItems := res.ResponseItems[0].ResponseItems
@@ -66,7 +68,7 @@ func (l *LibraClient) GetAccountTransaction(address string, sequenceNumber uint6
 
 	res, err := l.GetLatestWithProof([]*gowrapper.RequestItem{requestItem})
 	if err != nil {
-
+		return nil, err
 	}
 	responseItems := res.ResponseItems[0].ResponseItems
 	response := responseItems.(*gowrapper.ResponseItem_GetAccountTransactionBySequenceNumberResponse)
