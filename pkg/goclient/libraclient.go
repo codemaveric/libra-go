@@ -49,7 +49,7 @@ func (l *LibraClient) GetAccountTransaction(address string, sequenceNumber uint6
 
 	res, err := l.GetLatestWithProof([]*gowrapper.RequestItem{requestItem})
 	if err != nil {
-
+		return nil, err
 	}
 	responseItems := res.ResponseItems[0].ResponseItems
 	response := responseItems.(*gowrapper.ResponseItem_GetAccountTransactionBySequenceNumberResponse)

@@ -11,7 +11,7 @@ import (
 func main() {
 	// Change the mnemonic to something else,
 	// or you will get address used by others
-	mnemonic := "present good satochi coinfddw future media giant"
+	mnemonic := "present good satochi coin future media giant"
 	wallet := librawallet.NewWalletLibrary(mnemonic)
 
 	// create a new address
@@ -95,4 +95,11 @@ func main() {
 
 	// The balance should be 100000000 now
 	fmt.Printf("Address2 balance: %d\n", destaccState.Balance)
+
+	// Get Account Transaction by Sequence Number
+	transaction, err := libraClient.GetAccountTransaction(sourceAccount.Address.ToString(), 0, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(transaction)
 }

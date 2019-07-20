@@ -53,9 +53,6 @@ func main() {
 	// The balance will not be 500000000 if you don't change the mnemonic,
 	// cause the account has been used multiple times
 	fmt.Printf("balance: %d\n", SourceaccState.Balance)
-
-	// Set the current account sequence
-	sourceAccount.Sequence = SourceaccState.SequenceNumber
 }
 
 
