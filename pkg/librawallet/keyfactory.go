@@ -31,22 +31,18 @@ type ExtendedPrivKey struct {
 func (e *ExtendedPrivKey) GetAddress() types.AccountAddress {
 	var publicKey ed25519.PublicKey
 	publicKey = e.PrivateKey.Public().(ed25519.PublicKey)
-
-	// keccaksha3 := sha3.NewLegacyKeccak256()
 	var accountAddress types.AccountAddress
 	digest := sha3.Sum256(publicKey)
 	accountAddress = digest[:]
 	return accountAddress
 }
 
-// Returns Private Key string representation
+// Returns Private Key hex string representation
 func (e *ExtendedPrivKey) ToString() string {
 	return hex.EncodeToString(e.PrivateKey)
 }
 
 func (e *ExtendedPrivKey) GetPublic() ed25519.PublicKey {
-	// publicKey := make([]byte, PublicKeySize)
-	// copy(publicKey, e.PrivateKey[32:])
 	var publicKey ed25519.PublicKey
 	publicKey = e.PrivateKey.Public().(ed25519.PublicKey)
 	return publicKey

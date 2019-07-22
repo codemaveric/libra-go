@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/codemaveric/libra-go/pkg/librawallet"
 	"log"
-	"strings"
+
+	"github.com/codemaveric/libra-go/pkg/librawallet"
 )
 
 func main() {
@@ -21,15 +21,16 @@ func main() {
 
 	fmt.Printf("Adddress: %s\n", address.ToString())
 
-	// Generate KeyPair with mnemonic and childNum
-	keyPair := librawallet.GenerateKeyPair(strings.Split(mnemonic, " "), childNum)
+	// Get Account with Child number
+	account, err := wallet.GetAccount(childNum)
+	// If you have your secrey key you can create account from it.
+	// secreyKey := "hex string of secret key here"
+	// account := librawallet.NewAccountFromSecret(secretKey)
 
-	// Create Account from KeyPair
-	sourceAccount := librawallet.NewAccountFromKeyPair(keyPair)
-	fmt.Printf("Address from KeyPair: %s\n", sourceAccount.Address.ToString())
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// show the private key
-	fmt.Printf("Private key: %x\n", sourceAccount.KeyPair.PrivateKey.Value)
+	// Show the private key
+	fmt.Printf("Private key: %x\n", account.KeyPair.PrivateKey.Value)
 }
-
-

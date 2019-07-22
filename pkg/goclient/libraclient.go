@@ -93,7 +93,7 @@ func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddre
 	acStatus := res.GetAcStatus()
 	// If status is not Accepted return error else increase the sequence number of the sender
 	if acStatus.Code != gowrapper.AdmissionControlStatusCode_Accepted {
-		return errors.New(fmt.Sprintf("Transaction failed with status: %s, Message: %s", gowrapper.AdmissionControlStatusCode_name[int32(acStatus.Code)], acStatus.Message))
+		return fmt.Errorf("Transaction failed with status: %s, Message: %s", gowrapper.AdmissionControlStatusCode_name[int32(acStatus.Code)], acStatus.Message)
 	}
 	sender.Sequence += 1
 	return nil
@@ -144,14 +144,14 @@ func verify(req *gowrapper.UpdateToLatestLedgerRequest, resp *gowrapper.UpdateTo
 
 	// Verify that the same or a newer ledger info is returned.
 	if ledgeInfo.GetVersion() <= req.GetClientKnownVersion() {
-		return errors.New(fmt.Sprintf("Got stale ledger_info with version %d, known version: %d.", req.GetClientKnownVersion(), ledgeInfo.GetVersion()))
+		return fmt.Errorf("Got stale ledger_info with version %d, known version: %d.", req.GetClientKnownVersion(), ledgeInfo.GetVersion())
 	}
 	// Verify ledger info signatures.
 	if !(ledgeInfo.GetVersion() == 0 && len(signatures) == 0) {
 
 	}
 	if len(req.GetRequestedItems()) != len(resp.GetResponseItems()) {
-		return errors.New(fmt.Sprintf("Number of request items %d does not match that of response items %d.", len(req.GetRequestedItems()), len(resp.GetResponseItems())))
+		return fmt.Errorf("Number of request items %d does not match that of response items %d.", len(req.GetRequestedItems()), len(resp.GetResponseItems()))
 	}
 	return nil
 }
