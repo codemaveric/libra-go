@@ -1,6 +1,7 @@
 package librawallet
 
 import (
+	"encoding/hex"
 	"strings"
 
 	"github.com/codemaveric/libra-go/pkg/crypto"
@@ -22,7 +23,7 @@ func GenerateKeyPair(mnemonic Mnemonic, childNum uint64) *crypto.KeyPair {
 }
 
 // Create Account from Mnemonic and child number.
-func NewAccount(mnemonic string, childNumber uint64) *Account {
+func NewAccount(mnemonic string, childNumber uint64) (*Account, error) {
 	seed := NewSeed(strings.Split(mnemonic, " "), "")
 	keyfactory := NewKeyFactory(seed)
 	privateKey := keyfactory.GenerateKey(childNumber)
@@ -37,7 +38,11 @@ func NewAccountFromKeyPair(keyPair *crypto.KeyPair) *Account {
 }
 
 // Create Account from Secret Key.
-func NewAccountFromSecret(secret string) *Account {
-	keyPair := crypto.NewKeyPair([]byte(secret))
-	return NewAccountFromKeyPair(keyPair)
+func NewAccountFromSecret(secret string) (*Account, error) {
+	secretBytes, err := hex.DecodeString(secret)
+	if err != nil {
+		return nil, err
+	}
+	keyPair := crypto.NewKeyPair(secretBytes)
+	return NewAccountFromKeyPair(keyPair), nil
 }

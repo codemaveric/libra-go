@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/codemaveric/libra-go/pkg/goclient"
-	"github.com/codemaveric/libra-go/pkg/librawallet"
 	"log"
 	"strings"
+
+	"github.com/codemaveric/libra-go/pkg/goclient"
+	"github.com/codemaveric/libra-go/pkg/librawallet"
 )
 
 func main() {
@@ -54,5 +55,3 @@ func main() {
 	// cause the account has been used multiple times
 	fmt.Printf("balance: %d\n", SourceaccState.Balance)
 }
-
-

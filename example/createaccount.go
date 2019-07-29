@@ -25,7 +25,7 @@ func main() {
 	account, err := wallet.GetAccount(childNum)
 	// If you have your secrey key you can create account from it.
 	// secreyKey := "hex string of secret key here"
-	// account := librawallet.NewAccountFromSecret(secretKey)
+	// account, err := librawallet.NewAccountFromSecret(secretKey)
 
 	if err != nil {
 		log.Fatal(err)

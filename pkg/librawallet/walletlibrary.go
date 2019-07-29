@@ -63,5 +63,5 @@ func (w *WalletLibrary) GetAccount(childNumber uint64) (*Account, error) {
 		return nil, fmt.Errorf("Address with childnumber: %d not available in wallet library", childNumber)
 	}
 	key := w.KeyFactory.GenerateKey(childNumber)
-	return NewAccountFromSecret(key.ToString()), nil
+	return NewAccountFromSecret(key.ToString())
 }

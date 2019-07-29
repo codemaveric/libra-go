@@ -23,10 +23,13 @@ func main() {
 	fmt.Printf("Source Account Address: %s\n", address1.ToString())
 
 	// Create account  with mnemonic and childNum
-	sourceAccount := librawallet.NewAccount(mnemonic, childNum)
+	sourceAccount, err := librawallet.NewAccount(mnemonic, childNum)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// If you have your secrey key you can create account from it.
 	// secreyKey := "hex string of secret key here"
-	// sourceAccount := librawallet.NewAccountFromSecret(secretKey)
+	// sourceAccount, err := librawallet.NewAccountFromSecret(secretKey)
 
 	// Libra Client Configuration
 	config := goclient.LibraClientConfig{
