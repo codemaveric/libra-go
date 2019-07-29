@@ -83,10 +83,6 @@ func main() {
 
 ```
 
-## Roadmap
-
-1) Get Transactions.
-
 ## Contribution
 Feel free to contribute by opening issues or PR's.
 
