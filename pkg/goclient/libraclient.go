@@ -99,6 +99,11 @@ func (l *LibraClient) TransferCoins(sender *librawallet.Account, receipientAddre
 		return fmt.Errorf("Transaction failed with status: %s, Message: %s", gowrapper.AdmissionControlStatusCode_name[int32(acStatus.Code)], acStatus.Message)
 	}
 	sender.Sequence += 1
+
+	// Wait for transaction to be included.
+	if isBlocking {
+		l.waitForTransaction(sender.Address, sender.Sequence)
+	}
 	return nil
 }
 
