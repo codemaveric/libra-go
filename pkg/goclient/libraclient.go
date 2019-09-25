@@ -169,7 +169,7 @@ func verify(req *gowrapper.UpdateToLatestLedgerRequest, resp *gowrapper.UpdateTo
 func (l *LibraClient) MintWithFaucetService(address string, num_coins uint64, is_blocking bool) error {
 	furl := fmt.Sprintf("http://%s?amount=%d&address=%s", DefaultFaucetServerHost, num_coins, address)
 	client := http.Client{Timeout: time.Second * 5}
-	res, err := client.Get(furl)
+	res, err := client.PostForm(furl, nil)
 	if err != nil {
 		return err
 	}
